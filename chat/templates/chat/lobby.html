@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lobby</title>
+</head>
+<body>
+    <h1>...</h1>
+
+    <form id="form">
+        <input type="text" name="message" placeholder="Type your message..."/>
+    </form>
+    <div id="messages"></div>
+
+    <script type="text/javascript">
+
+        let url = `ws://${window.location.host}/ws${window.location.pathname}`;
+       
+        const chatWebSocket = new WebSocket(`${url}`);
+
+        chatWebSocket.onopen = function(event) {
+            sendMessage("Bonjour je vais bien et vous ?");
+        }
+
+
+        chatWebSocket.onmessage = function(event) {
+            receiveMessage(event.data);
+        }
+        let form = document.querySelector('#form');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            let message = event.target.message.value;
+            form.reset();
+            sendMessage(message);
+        })
+
+        const sendMessage = (message) => {
+            chatWebSocket.send(JSON.stringify({
+                type: "message",
+                origin: "Client",
+                nom: 'Kenne Patrick',
+                message: message
+            }))
+        }
+        const receiveMessage = (message) => {
+            data = JSON.parse(message);
+            if (data.type == "chat"){
+                let messages = document.querySelector('#messages');
+                messages.insertAdjacentHTML("beforeend", `<div>
+                    <p>${data.message}</p>
+                </div>`);
+
+                // console.log(data);
+            }
+        }
+    </script>
+</body>
+</html>
